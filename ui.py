@@ -277,67 +277,80 @@ def render_processing_card(img_array: np.ndarray, attrs: list):
 
 # ──────────────────── Result Card ────────────────────────────────────────
 def render_result_card(orig: Image.Image, face: dict, attrs: list, msg: str):
-    with st.container():
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.subheader("3. Results")
+    try:
+        with st.container():
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.subheader("3. Results")
 
-        region = face.get("region")
-        drawn = orig.copy()
-        if region and all(k in region for k in ("x", "y", "w", "h")):
-            ImageDraw.Draw(drawn).rectangle(
-                [region["x"], region["y"], region["x"]+region["w"], region["y"]+region["h"]],
-                outline=PALETTE.get("primary", "#17E9E0"), width=4
-            )
-
-        # Metrics and image/chart/download in two columns for wide screens
-        cols = st.columns([2,2])
-        with cols[0]:
-            if "emotion" in attrs:
-                raw = face.get("dominant_emotion", "")
-                emoji = EMOJI.get(raw.lower(), "")
-                st.metric("Emotion", f"{raw.capitalize()} {emoji}".strip())
-            if "age" in attrs:
-                st.metric("Age", int(face.get("age", 0)))
-            if "gender" in attrs:
-                st.metric("Gender", best_label(face.get("gender", {})))
-            if "race" in attrs:
-                st.metric("Race", best_label(face.get("race", {})))
-
-            st.success(msg)
-            with st.expander("Learn more"):
-                insight = generate_insight(face.get("dominant_emotion", ""))
-                st.write(insight.strip())
-
-        with cols[1]:
-            st.image(drawn, caption="Detected face", use_container_width=True)
-            chart_data = [
-                {"emotion": e, "conf": float(c)}
-                for e, c in face.get("emotion", {}).items()
-                if isinstance(c, (float, int))
-            ]
-            if "emotion" in attrs and len(chart_data) > 1:
+            # Defensive: check if region exists and is valid
+            region = face.get("region")
+            drawn = orig.copy()
+            if region and all(k in region for k in ("x", "y", "w", "h")):
                 try:
-                    chart = (
-                        alt.Chart(alt.Data(values=chart_data))
-                        .mark_bar(size=25)
-                        .encode(
-                            x="emotion:N",
-                            y=alt.Y("conf:Q", scale=alt.Scale(domain=[0,1])),
-                            color="emotion:N",
-                            tooltip=["conf:Q"],
-                        )
+                    ImageDraw.Draw(drawn).rectangle(
+                        [region["x"], region["y"], region["x"]+region["w"], region["y"]+region["h"]],
+                        outline=PALETTE.get("primary", "#17E9E0"), width=4
                     )
-                    st.altair_chart(chart, use_container_width=True)
-                except Exception:
-                    pass
-            tmp = save_temp_image(drawn)
-            with open(tmp, "rb") as f:
-                st.download_button(
-                    "Download Annotated Image",
-                    f,
-                    file_name="moodlens_result.png",
-                    use_container_width=True
-                )
-            Path(tmp).unlink(missing_ok=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+                except Exception as e:
+                    st.warning(f"Could not draw bounding box: {e}")
+            else:
+                st.warning("No face region found. Showing image without bounding box.")
+
+            # Metrics and image/chart/download in two columns for wide screens
+            cols = st.columns([2,2])
+            with cols[0]:
+                if "emotion" in attrs:
+                    raw = face.get("dominant_emotion", "")
+                    emoji = EMOJI.get(raw.lower(), "")
+                    st.metric("Emotion", f"{raw.capitalize()} {emoji}".strip())
+                if "age" in attrs:
+                    st.metric("Age", int(face.get("age", 0)))
+                if "gender" in attrs:
+                    st.metric("Gender", best_label(face.get("gender", {})))
+                if "race" in attrs:
+                    st.metric("Race", best_label(face.get("race", {})))
+
+                st.success(msg)
+                with st.expander("Learn more"):
+                    insight = generate_insight(face.get("dominant_emotion", ""))
+                    st.write(insight.strip())
+
+            with cols[1]:
+                st.image(drawn, caption="Detected face", use_container_width=True)
+                chart_data = [
+                    {"emotion": e, "conf": float(c)}
+                    for e, c in face.get("emotion", {}).items()
+                    if isinstance(c, (float, int))
+                ]
+                if "emotion" in attrs and len(chart_data) > 1:
+                    try:
+                        chart = (
+                            alt.Chart(alt.Data(values=chart_data))
+                            .mark_bar(size=25)
+                            .encode(
+                                x="emotion:N",
+                                y=alt.Y("conf:Q", scale=alt.Scale(domain=[0,1])),
+                                color="emotion:N",
+                                tooltip=["conf:Q"],
+                            )
+                        )
+                        st.altair_chart(chart, use_container_width=True)
+                    except Exception as e:
+                        st.warning(f"Could not plot emotion chart: {e}")
+                try:
+                    tmp = save_temp_image(drawn)
+                    with open(tmp, "rb") as f:
+                        st.download_button(
+                            "Download Annotated Image",
+                            f,
+                            file_name="moodlens_result.png",
+                            use_container_width=True
+                        )
+                    Path(tmp).unlink(missing_ok=True)
+                except Exception as e:
+                    st.warning(f"Could not create/download image: {e}")
+
+            st.markdown('</div>', unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"Results rendering failed: {e}")
 
