@@ -30,23 +30,6 @@ A lightweight, Streamlit-based AI app that analyzes your facial expression and r
 
 ---
 
-## 📁 Project Structure
-
-MoodLens-AI/
-│
-├── app.py # Main launcher for the Streamlit app
-├── ui.py # UI layout functions (sidebar, header, cards)
-├── ai.py # Core logic (image analysis, AI responses)
-├── constants.py # Color palette and emoji map
-├── requirements.txt # Python package dependencies
-├── sample.jpg # Sample image for demo
-├── workflow_diagram.PNG # System architecture (optional)
-└── .streamlit/
-└── config.toml # (Optional) Streamlit theme overrides
-
-
----
-
 ## 🛠️ Setup Instructions
 
 ### 1. Clone the repository
