@@ -45,13 +45,16 @@ MoodLens-AI/
 └── .streamlit/
     └── config.toml        # (Optional) Streamlit theme overrides
 
-## 🛠️ Setup Instructions
+---
 
+## 🛠️ Setup Instructions
+---
 ### 1. Clone the repository
 
 ```bash
 git clone https://github.com/yourusername/MoodLens-AI.git
 cd MoodLens-AI
+---
 
 ### 2. (Optional) Create a virtual environment
 bash
@@ -62,9 +65,13 @@ python -m venv venv
 source venv/bin/activate    # On Linux/macOS
 venv\Scripts\activate       # On Windows
 
+---
+
 ### 3. Install dependencies
 
 pip install -r requirements.txt
+
+---
 
 ### 🔍 Requirements
 Make sure Python 3.8 or higher is installed.
@@ -82,6 +89,7 @@ altair
 deepface
 
 transformers
+---
 
 ## ▶️ Run the app locally
 
@@ -102,6 +110,8 @@ Don't commit .streamlit/secrets.toml if it contains any private keys.
 
 🧪 Sample Usage
 
+---
+
 ## Launch the app.
 
 Upload a selfie or click Use Sample Image.
@@ -114,9 +124,13 @@ Get instant analysis, a custom message, and annotated image.
 
 Click Download Annotated Image if needed.
 
+---
+
 ## 👨‍💻 Contributing
 We welcome pull requests!
 Feel free to fork the repo, submit fixes, or open feature requests via issues.
+
+---
 
 # 🧾 License
 This project is licensed under the MIT License – feel free to use, modify, and distribute.
