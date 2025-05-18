@@ -1,0 +1,19 @@
+
+# core
+streamlit
+
+# DeepFace & its RetinaFace detector (TensorFlow/Keras)
+deepface>=0.0.75
+tensorflow>=2.10
+tf-keras
+retina-face           # <- the “hyphen” package, not “retinaface”
+
+opencv-python
+Pillow
+numpy
+pandas
+
+transformers>=4.30
+torch>=2.0
+
+altair
